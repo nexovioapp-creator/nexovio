@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="alerts-page">
+
+    <h1>🔔 My Price Alerts</h1>
+
+    <div class="alerts-section">
+
+        <h2>Active Alerts</h2>
+
+        {% if active_alerts %}
+
+            {% for alert in active_alerts %}
+
+            <div class="alert-card active">
+
+                <div>
+                    <h3>
+                        {{ alert.variant.mobile.brand|title }}
+                        {{ alert.variant.mobile.model_name|title }}
+                    </h3>
+
+                    <p>
+                        Target Price:
+                        ₹{{ alert.target_price }}
+                    </p>
+
+                    <small>
+                        Created:
+                        {{ alert.created_at|date:"d M Y" }}
+                    </small>
+                </div>
+
+                <a
+                    href="{% url 'delete_price_alert' alert.id %}"
+                    class="delete-alert-btn"
+                >
+                    Delete
+                </a>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="empty-state">
+                No active alerts.
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <div class="alerts-section">
+
+        <h2>Triggered Alerts</h2>
+
+        {% if triggered_alerts %}
+
+            {% for alert in triggered_alerts %}
+
+            <div class="alert-card triggered">
+
+                <div>
+                    <h3>
+                        {{ alert.variant.mobile.brand|title }}
+                        {{ alert.variant.mobile.model_name|title }}
+                    </h3>
+
+                    <p>
+                        Triggered at:
+                        ₹{{ alert.target_price }}
+                    </p>
+
+                    <small>
+                        {{ alert.triggered_at|date:"d M Y H:i" }}
+                    </small>
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="empty-state">
+                No triggered alerts yet.
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+<style>
+.alerts-page{
+    max-width:1000px;
+    margin:40px auto;
+}
+
+.alerts-section{
+    margin-top:40px;
+}
+
+.alert-card{
+    background:white;
+    padding:22px;
+    border-radius:18px;
+    margin-bottom:18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    box-shadow:0 8px 30px rgba(0,0,0,0.08);
+}
+
+.alert-card.active{
+    border-left:6px solid #2563eb;
+}
+
+.alert-card.triggered{
+    border-left:6px solid #10b981;
+}
+
+.delete-alert-btn{
+    background:#ef4444;
+    color:white;
+    padding:10px 16px;
+    border-radius:10px;
+    text-decoration:none;
+}
+
+.empty-state{
+    background:#f8fafc;
+    padding:24px;
+    border-radius:16px;
+}
+</style>
+
+{% endblock %}

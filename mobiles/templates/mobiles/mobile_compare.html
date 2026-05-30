@@ -1,0 +1,603 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="page-container product-detail-page">
+
+    <!-- HERO -->
+    <div class="premium-hero">
+
+        <div class="premium-hero-image">
+            {% if hero_image and hero_image.img_url %}
+                <img
+                    src="{{ hero_image.img_url }}"
+                    alt="{{ selected_variant.mobile.model_name }}"
+                    class="premium-product-image"
+                >
+            {% else %}
+                <div class="hero-placeholder">No Image</div>
+            {% endif %}
+        </div>
+
+        <div class="premium-hero-info">
+            <h1 class="premium-title">
+                {{ mobile.brand|title }} {{ mobile.model_name|title }}
+            </h1>
+
+            <p class="premium-subtitle">
+                {{ selected_variant.ram_gb }} •
+                {{ selected_variant.storage_gb }} •
+                {{ selected_variant.color|title }}
+            </p>
+            {% if selected_variant.best_price and selected_variant.best_price.discount_amount > 0 %}
+            <div class="hero-price-drop">
+                ↓ Save ₹{{ selected_variant.best_price.discount_amount }}
+            </div>
+            {% endif %}
+            <div class="hero-trust-row">
+                <span>
+                    ⭐ {{ selected_variant.prices.first.customer_rating|default:"4.5" }} Rating
+                </span>
+
+                <span>
+                    🔥 {{ selected_variant.prices.count }} sellers live
+                </span>
+
+                <span>
+                    📉 {{ selected_variant.price_history.count }} price points tracked
+                </span>
+
+                <span>
+                    🔔 Price alerts available
+                </span>
+            </div>
+            <div class="variant-selector-box inside-hero">
+
+                <div class="selector-section">
+                    <h3>Select Color</h3>
+
+                    <div class="variant-chip-group">
+                        {% for color in all_colors %}
+                            <a
+                                href="?color={{ color|urlencode }}&ram={{ selected_variant.ram }}&storage={{ selected_variant.storage }}"
+                                class="variant-chip {% if color == selected_color %}active{% endif %}"
+                            >
+                                {{ color|title }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="selector-section">
+                    <h3>Select Variant</h3>
+
+                    <div class="variant-chip-group">
+                        {% for variant in variant_options %}
+                            <a
+                                href="?color={{ selected_color|urlencode }}&ram={{ variant.ram }}&storage={{ variant.storage }}"
+                                class="variant-chip {% if selected_variant.id == variant.id %}active{% endif %}"
+                            >
+                                {{ variant.ram_gb }} / {{ variant.storage_gb }}
+
+                                {% if variant.best_price %}
+                                    <small>₹{{ variant.best_price.final_price }}</small>
+                                {% endif %}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="premium-actions">
+
+            <button
+                class="detail-wishlist-btn"
+                data-slug="{{ selected_variant.slug }}"
+            >
+                {% if selected_variant.mobile.id in wishlist_ids %}
+                    ❤️ Wishlisted
+                {% else %}
+                    ♡ Wishlist
+                {% endif %}
+            </button>
+
+            <button
+                id="detail-compare-btn"
+                data-slug="{{ selected_variant.slug }}"
+            >
+                Compare
+            </button>
+
+            <button
+                id="price-alert-btn"
+                data-variant-id="{{ selected_variant.id }}"
+                class="price-alert-btn"
+            >
+                🔔 Alert Me
+            </button>
+
+        </div>
+
+    </div>
+    
+    <!-- BEST OFFERS -->
+    {% if selected_variant %}
+    {% with best=selected_variant.best_price %}
+
+    <div class="seller-offers">
+
+        <h2>Best Offers</h2>
+
+        {% for price in selected_variant.prices.all %}
+        <div class="seller-card {% if best and price.id == best.id %}best-deal{% endif %}">
+
+            <div class="seller-left">
+                <div class="seller-logo">
+                    {% if price.seller|lower == "flipkart" %}
+                        <img src="{% static 'seller_logs/Flipkart.png' %}" alt="Flipkart">
+
+                    {% elif price.seller|lower == "vijaysales" %}
+                        <img src="{% static 'seller_logs/VijaySale.png' %}" alt="Vijay Sales" class="seller-logo-vijay">
+
+                    {% elif price.seller|lower == "amazon" %}
+                        <img src="{% static 'seller_logs/Amazon.png' %}" alt="Amazon">
+
+                    {% else %}
+                        {{ price.seller|title }}
+                    {% endif %}
+                </div>
+
+                {% if best and price.id == best.id %}
+                    <span class="best-badge">🏆 Best Price</span>
+                {% endif %}
+
+                {% if price.customer_rating %}
+                <div class="seller-rating">
+                    ★ {{ price.customer_rating }}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="seller-price">
+                {% if price.list_price %}
+                    <span class="seller-mrp">
+                        ₹{{ price.list_price }}
+                    </span>
+                {% endif %}
+
+                <span class="seller-offer">
+                    ₹{{ price.final_price }}
+                </span>
+
+                {% if price.list_price %}
+                <div class="seller-saving">
+                    {% if price.discount_amount > 0 %}
+                        Save ₹{{ price.discount_amount }}
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+            {% if price.availability == "in stock" %}
+                <a
+                    href="{{ price.product_url }}"
+                    target="_blank"
+                    class="buy-btn"
+                >
+                    View Deal →
+                </a>
+            {% endif %}
+
+        </div>
+        {% endfor %}
+
+    </div>
+
+    {% endwith %}
+    {% endif %}
+
+    <!-- PRICE INTELLIGENCE -->
+    <div class="price-insights-box">
+
+        <h3>📉 Price Intelligence</h3>
+
+        <div class="insight-grid">
+
+            <div class="insight-card">
+                <span>Lowest Price</span>
+                <strong>₹{{ lowest_price }}</strong>
+            </div>
+
+            <div class="insight-card">
+                <span>Highest Price</span>
+                <strong>₹{{ highest_price }}</strong>
+            </div>
+
+            <div class="insight-card">
+                <span>Average Price</span>
+                <strong>₹{{ average_price }}</strong>
+            </div>
+
+            <div class="insight-card">
+                <span>Trend</span>
+                <strong>{{ price_trend }}</strong>
+            </div>
+
+            <div class="insight-card buy-signal-card">
+                <span>Buy Signal</span>
+                <strong>{{ buy_signal }}</strong>
+            </div>
+
+            <div class="insight-card advice-card">
+                <span>Recommendation</span>
+                <strong>Smart Buying Advice</strong>
+            </div>
+
+        </div>
+
+        <div class="buy-advice-box">
+            {{ buy_advice }}
+        </div>
+
+    </div>
+
+    <!-- CHART -->
+    <div class="price-chart-box">
+        <div class="price-range-filters">
+            <button class="range-btn active" data-range="7">7D</button>
+            <button class="range-btn" data-range="30">30D</button>
+            <button class="range-btn" data-range="90">90D</button>
+            <button class="range-btn" data-range="all">ALL</button>
+        </div>
+
+        <h3>📈 Price History</h3>
+
+        <div class="chart-fixed-wrap">
+            <canvas id="priceChart" height="140"></canvas>
+        </div>
+    </div>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+
+    // =========================
+    // COMPARE
+    // =========================
+
+    const compareBtn =
+        document.getElementById("detail-compare-btn");
+
+    if(compareBtn){
+
+        const slug = compareBtn.dataset.slug;
+
+        let compareItems = JSON.parse(
+            localStorage.getItem("compareMobiles")
+        ) || [];
+
+        if(compareItems.includes(slug)){
+            compareBtn.innerText = "✓ Compare Now";
+        }
+
+        compareBtn.addEventListener("click", function(){
+
+            let items = JSON.parse(
+                localStorage.getItem("compareMobiles")
+            ) || [];
+
+            if(items.includes(slug)){
+
+                window.location.href =
+                    "/compare/?mobiles=" +
+                    items.join(",");
+
+                return;
+            }
+
+            if(items.length >= 3){
+
+                alert("Maximum 3 mobiles allowed");
+                return;
+            }
+
+            items.push(slug);
+
+            localStorage.setItem(
+                "compareMobiles",
+                JSON.stringify(items)
+            );
+
+            compareBtn.innerText = "✓ Compare Now";
+        });
+    }
+
+    // =========================
+    // WISHLIST
+    // =========================
+
+    const wishlistBtn =
+      document.querySelector(".detail-wishlist-btn");
+
+  if(wishlistBtn){
+
+      const slug = wishlistBtn.dataset.slug;
+
+      wishlistBtn.addEventListener("click", function(){
+
+          fetch(`/wishlist/${slug}/`, {
+              headers: {
+                  "X-Requested-With": "XMLHttpRequest"
+              }
+          })
+          .then(response => {
+
+              if(response.redirected){
+                  window.location.href = response.url;
+                  return null;
+              }
+
+              return response.json();
+          })
+          .then(data => {
+
+              if(!data) return;
+
+              if(data.success){
+
+                  wishlistBtn.innerText =
+                      data.added
+                      ? "❤️ Wishlisted"
+                      : "♡ Wishlist";
+
+                  const countBadge =
+                      document.getElementById("wishlist-count");
+
+                  if(countBadge){
+                      countBadge.innerText =
+                          data.wishlist_count;
+                  }
+              }
+          });
+      });
+  }
+
+    const alertBtn =
+        document.getElementById("price-alert-btn");
+
+    const alertModal =
+        document.getElementById("price-alert-modal");
+
+    const closeAlertBtn =
+        document.getElementById("close-alert-btn");
+
+    const saveAlertBtn =
+        document.getElementById("save-alert-btn");
+
+    if(alertBtn){
+
+        alertBtn.addEventListener("click", function(){
+            alertModal.style.display = "flex";
+        });
+
+        closeAlertBtn.addEventListener("click", function(){
+            alertModal.style.display = "none";
+        });
+
+        saveAlertBtn.addEventListener("click", function(){
+
+            const targetPrice =
+                document.getElementById("target-price-input").value;
+
+            if(!targetPrice){
+                alert("Enter target price");
+                return;
+            }
+
+            fetch("/price-alert/create/", {
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json",
+                    "X-CSRFToken":"{{ csrf_token }}"
+                },
+                body: JSON.stringify({
+                    variant_id: alertBtn.dataset.variantId,
+                    target_price: targetPrice
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+
+                if(data.success){
+                    alert(data.message);
+                    alertModal.style.display = "none";
+                }else{
+                    alert("Something went wrong");
+                }
+            });
+
+        });
+    }
+
+});
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    let priceChart = null;
+
+    function loadChart(range = "all") {
+
+        fetch(`/api/price-history/{{ selected_variant.slug }}/?range=${range}`)
+            .then(res => res.json())
+            .then(data => {
+
+                if (!Object.keys(data).length) {
+
+                    const chartWrap = document.querySelector(".chart-fixed-wrap");
+
+                    if (priceChart) {
+                        priceChart.destroy();
+                        priceChart = null;
+                    }
+
+                    chartWrap.innerHTML = `
+                        <div class="empty-history-state">
+                            📭 No price history available for this time range.
+                        </div>
+                    `;
+
+                    return;
+                }
+
+                const datasets = [];
+                let labels = [];
+
+                const colors = [
+                    "#3b82f6",
+                    "#ef4444",
+                    "#10b981",
+                    "#f59e0b",
+                    "#8b5cf6",
+                    "#ec4899"
+                ];
+
+                let colorIndex = 0;
+
+                Object.keys(data).forEach(seller => {
+
+                    if (!labels.length) {
+                        labels = data[seller].map(x =>
+                            new Date(x.date).toLocaleDateString("en-IN", {
+                                day: "numeric",
+                                month: "short"
+                            })
+                        );
+                    }
+
+                    const ctx = document.getElementById("priceChart");
+
+                    const gradient = ctx.getContext("2d").createLinearGradient(0,0,0,260);
+                    gradient.addColorStop(0,"rgba(79,70,229,0.22)");
+                    gradient.addColorStop(1,"rgba(79,70,229,0)");
+
+                    datasets.push({
+                        label: seller,
+                        data: data[seller].map(x => x.price),
+                        borderColor: colors[colorIndex % colors.length],
+                        backgroundColor: gradient,
+                        tension: 0.42,
+                        borderWidth: 3,
+                        pointRadius: 5,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: colors[colorIndex % colors.length],
+                        pointBorderWidth: 2,
+                        fill: false
+                    });
+
+                    colorIndex++;
+                });
+
+                if (priceChart) {
+                    priceChart.destroy();
+                }
+
+                const chartWrap = document.querySelector(".chart-fixed-wrap");
+
+                chartWrap.innerHTML = `
+                    <canvas id="priceChart" height="140"></canvas>
+                `;
+
+                priceChart = new Chart(
+                    document.getElementById("priceChart"),
+                    {
+                        type: "line",
+                        data: {
+                            labels: labels,
+                            datasets: datasets
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            resizeDelay: 200,
+                            animation: true,
+
+                            plugins: {
+                                tooltip: {
+                                    backgroundColor: "#111827",
+                                    titleColor: "#ffffff",
+                                    bodyColor: "#ffffff",
+                                    padding: 12,
+                                    cornerRadius: 10,
+                                    displayColors: true,
+                                    callbacks: {
+                                        label: function(context) {
+                                            return " ₹" + context.parsed.y;
+                                        }
+                                    }
+                                }
+                            },
+
+                            scales: {
+                                y: {
+                                    beginAtZero: false
+                                }
+                            }
+                        }
+                    }
+                );
+            });
+    }
+
+    loadChart("all");
+
+    document.querySelectorAll(".range-btn").forEach(btn => {
+        btn.addEventListener("click", function () {
+
+            document.querySelectorAll(".range-btn").forEach(b => {
+                b.classList.remove("active");
+            });
+
+            this.classList.add("active");
+
+            loadChart(this.dataset.range);
+        });
+    });
+
+});
+</script>
+<div id="price-alert-modal" class="alert-modal">
+    <div class="alert-modal-content">
+
+        <h3>🔔 Set Price Alert</h3>
+
+        <p>
+            Get notified when this mobile drops below your target price.
+        </p>
+
+        <input
+            type="number"
+            id="target-price-input"
+            placeholder="Enter target price (₹)"
+        >
+
+        <div class="alert-modal-actions">
+            <button id="save-alert-btn">
+                Save Alert
+            </button>
+
+            <button id="close-alert-btn">
+                Cancel
+            </button>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

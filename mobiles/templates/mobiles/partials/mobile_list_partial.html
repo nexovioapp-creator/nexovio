@@ -1,0 +1,179 @@
+<div class="section-heading">
+    <h2>Explore Mobile Deals</h2>
+    <p>Compare prices from trusted sellers and track price history.</p>
+</div>
+
+<div class="grid">
+
+    {% if page_obj %}
+
+        {% for m in page_obj %}
+
+        {% with v=m.variants.all|first %}
+        {% if v %}
+        {% with p=v.prices.all|first %}
+
+        <div class="card premium-card">
+
+            {% if user.is_authenticated %}
+                <button
+                    class="wishlist-btn"
+                    data-slug="{{ v.slug }}"
+                >
+                    {% if m.id in wishlist_mobile_ids %}
+                        ❤️
+                    {% else %}
+                        🤍
+                    {% endif %}
+                </button>
+            {% endif %}
+
+            <!-- CLICKABLE PRODUCT AREA -->
+            <a
+                href="{% url 'mobile_compare' v.slug %}"
+                class="card-clickable"
+            >
+
+                {% if p.img_url %}
+                    <img src="{{ p.img_url }}" alt="{{ m.brand }}">
+                {% endif %}
+
+                <h4>
+                    {{ m.brand }} {{ m.model_name }}
+                </h4>
+
+                <p>
+                    {{ v.ram_gb }} / {{ v.storage_gb }}
+                </p>
+
+                <div class="mobile-price-block">
+                    {% if m.max_price_val and m.min_price_val %}
+
+                        <div class="mobile-old-price">
+                            ₹{{ m.max_price_val|floatformat:0 }}
+                        </div>
+
+                        <div class="mobile-price">
+                            ₹{{ m.min_price_val|floatformat:0 }}
+                        </div>
+
+                        <div class="mobile-save">
+                           💸 Save ₹{{ m.savings }}
+                        </div>
+
+                    {% else %}
+
+                        <div class="mobile-price">
+                            ₹{{ m.min_price_val|floatformat:0 }}
+                        </div>
+
+                    {% endif %}
+                </div>
+
+                <div class="card-meta">
+                    {% if m.seller_count > 1 %}
+                        <span>🔥 {{ m.seller_count }} Sellers Live</span>
+                    {% else %}
+                        <span>🛒 1 Seller Available</span>
+                    {% endif %}
+                </div>
+
+            </a>
+
+            <div class="card-bottom-row">
+
+                <label class="compare-inline">
+                    <span class="compare-box">
+                        <input
+                            type="checkbox"
+                            class="compare-checkbox"
+                            data-slug="{{ v.slug }}"
+                        >
+                    </span>
+                    <span>Compare</span>
+                </label>
+
+                <a
+                    href="{% url 'mobile_compare' v.slug %}"
+                    class="btn compact-btn"
+                >
+                    Details
+                </a>
+
+            </div>
+
+        </div>
+
+        {% endwith %}
+        {% endif %}
+        {% endwith %}
+
+    {% endfor %}
+
+    {% else %}
+
+        <div class="empty-state-card">
+            <div class="empty-icon">
+                📱
+            </div>
+
+            <h3>
+                No mobiles found
+            </h3>
+
+            <p>
+                Try changing filters, search another model,
+                or browse all mobiles.
+            </p>
+
+            <a href="/" class="empty-action-btn">
+                Reset Filters
+            </a>
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+{% if page_obj %}
+<!-- PAGINATION -->
+<div class="pagination-container">
+
+    <div class="pagination">
+
+        {% if page_obj.has_previous %}
+            <a href="?page=1" class="ajax-link">FIRST</a>
+            <a href="?page={{ page_obj.previous_page_number }}" class="ajax-link">
+                PREV
+            </a>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+
+                {% if page_obj.number == num %}
+                    <span class="active">{{ num }}</span>
+                {% else %}
+                    <a href="?page={{ num }}" class="ajax-link">
+                        {{ num }}
+                    </a>
+                {% endif %}
+
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="ajax-link">
+                NEXT
+            </a>
+
+            <a href="?page={{ page_obj.paginator.num_pages }}" class="ajax-link">
+                LAST
+            </a>
+        {% endif %}
+
+    </div>
+
+</div>
+{% endif %}

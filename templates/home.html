@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="home-page">
+
+    <!-- HERO -->
+    <section class="nexo-hero">
+
+        <div class="hero-left">
+            <span class="hero-badge">
+                Smart Price Comparison Platform
+            </span>
+
+            <h1>
+                Compare Smartphone Prices.<br>
+                Buy at the Right Time.
+            </h1>
+
+            <p>
+                Track real price drops across Flipkart, Amazon, Vijay Sales and more.
+                Compare sellers instantly, view price history, and save money smarter.
+            </p>
+
+            <div class="hero-buttons">
+                <a href="/" class="hero-primary-btn">
+                    Start Comparing
+                </a>
+
+                <a href="#why-nexovio" class="hero-secondary-btn">
+                    Why Nexovio?
+                </a>
+            </div>
+
+            <div class="hero-trust">
+                <div>⚡ Fast comparison</div>
+                <div>📉 Price tracking</div>
+                <div>🔔 Smart alerts</div>
+                <div>🛍 Real seller offers</div>
+            </div>
+        </div>
+
+        <div class="hero-right">
+            <div class="hero-card">
+                <div class="hero-phone-preview">
+                    <img src="{% static 'seller_logs/Flipkart.png' %}" alt="Preview">
+                </div>
+
+                <div class="hero-card-content">
+                    <h3>Live Price Intelligence</h3>
+                    <p>Compare deals before buying.</p>
+
+                    <div class="mini-price-row">
+                        <span>Best Price</span>
+                        <strong>₹22,999</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+
+    <!-- TRUST STATS -->
+    <section class="trust-stats">
+
+        <div class="stat-card">
+            <h3>500+</h3>
+            <p>Mobile Variants</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>10K+</h3>
+            <p>Price Checks</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Multiple</h3>
+            <p>Trusted Sellers</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>24/7</h3>
+            <p>Tracking</p>
+        </div>
+
+    </section>
+
+
+    <!-- BRANDS -->
+    <section class="brand-strip">
+
+        <h2>Popular Brands</h2>
+
+        <div class="brand-chips">
+            <span>Samsung</span>
+            <span>Apple</span>
+            <span>Vivo</span>
+            <span>OnePlus</span>
+            <span>iQOO</span>
+            <span>Motorola</span>
+            <span>OPPO</span>
+        </div>
+
+    </section>
+
+
+    <!-- WHY NEXOVIO -->
+    <section class="why-nexovio" id="why-nexovio">
+
+        <h2>Why Nexovio?</h2>
+
+        <div class="why-grid">
+
+            <div class="why-card">
+                <div class="why-icon">💰</div>
+                <h3>Compare Prices</h3>
+                <p>See real seller pricing instantly.</p>
+            </div>
+
+            <div class="why-card">
+                <div class="why-icon">📊</div>
+                <h3>Price History</h3>
+                <p>Track whether price is rising or dropping.</p>
+            </div>
+
+            <div class="why-card">
+                <div class="why-icon">🔔</div>
+                <h3>Price Alerts</h3>
+                <p>Get notified when your target price hits.</p>
+            </div>
+
+            <div class="why-card">
+                <div class="why-icon">🧠</div>
+                <h3>Smart Buy Advice</h3>
+                <p>Know when to buy vs wait.</p>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- TRENDING -->
+    <section class="section">
+
+        <h2>Trending Phones</h2>
+
+        <div class="grid">
+            {% for m in mobiles %}
+                {% with v=m.variants.all|first %}
+                    {% if v %}
+                        {% with p=v.prices.all|first %}
+
+                            <div class="card">
+
+                                <a href="{% url 'mobile_compare' v.slug %}" class="card-clickable">
+
+                                    {% if p.img_url %}
+                                        <img src="{{ p.img_url }}">
+                                    {% endif %}
+
+                                    <h4>{{ m.brand|title }} {{ m.model_name|title }}</h4>
+
+                                    <div class="price">
+                                        ₹{{ m.min_price }}
+                                    </div>
+
+                                </a>
+
+                                <a href="{% url 'mobile_compare' v.slug %}" class="btn">
+                                    View Deals
+                                </a>
+
+                            </div>
+
+                        {% endwith %}
+                    {% endif %}
+                {% endwith %}
+            {% endfor %}
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,62 @@
+<h2>{{ total_count }} Mobiles Found</h2>
+
+<div class="product-grid">
+    {% for m in page_obj %}
+        {% with variant=m.variants.all|first %}
+            {% if variant %}
+                {% with price=variant.prices.all|first %}
+
+                    <div class="product-card">
+
+                        {% if price.img_url %}
+                            <img src="{{ price.img_url }}">
+                        {% endif %}
+
+                        <h3>{{ m.brand|title }} {{ m.model_name|title }}</h3>
+
+                        <p>
+                            {{ variant.ram_gb }} / {{ variant.storage_gb }} | {{ variant.color }}
+                        </p>
+
+                        <p class="price">
+                            ₹{{ m.min_price_val }}
+                            {% if m.max_price_val %}
+                                <span class="mrp">₹{{ m.max_price_val }}</span>
+                            {% endif %}
+                        </p>
+
+                        <a href="{% url 'mobile_compare' variant.slug %}">
+                            View & Compare
+                        </a>
+
+                    </div>
+
+                {% endwith %}
+            {% endif %}
+        {% endwith %}
+    {% empty %}
+        <p>No mobiles found</p>
+    {% endfor %}
+</div>
+
+
+<!-- PAGINATION -->
+<div class="pagination">
+
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}" class="ajax-link">PREV</a>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <span class="active">{{ num }}</span>
+        {% else %}
+            <a href="?page={{ num }}" class="ajax-link">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="ajax-link">NEXT</a>
+    {% endif %}
+
+</div>

@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="error-page">
+
+    <div class="error-card">
+
+        <div class="error-icon">
+            🚫
+        </div>
+
+        <h1>404</h1>
+
+        <h2>Page Not Found</h2>
+
+        <p>
+            Oops! The page you’re looking for doesn’t exist,
+            may have moved, or the link is incorrect.
+        </p>
+
+        <div class="error-actions">
+
+            <a href="/" class="btn">
+                🏠 Back to Home
+            </a>
+
+            <a href="/contact/" class="btn secondary-btn">
+                📩 Contact Support
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+<style>
+.error-page{
+    min-height:70vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:40px 20px;
+}
+
+.error-card{
+    max-width:700px;
+    width:100%;
+    background:white;
+    padding:60px 40px;
+    border-radius:28px;
+    text-align:center;
+    box-shadow:0 14px 36px rgba(0,0,0,0.08);
+}
+
+.error-icon{
+    font-size:72px;
+    margin-bottom:20px;
+}
+
+.error-card h1{
+    font-size:72px;
+    margin:0;
+    color:#4f46e5;
+    font-weight:800;
+}
+
+.error-card h2{
+    font-size:32px;
+    margin:12px 0 18px;
+    color:#111827;
+}
+
+.error-card p{
+    font-size:16px;
+    color:#6b7280;
+    line-height:1.7;
+    max-width:500px;
+    margin:0 auto 28px;
+}
+
+.error-actions{
+    display:flex;
+    justify-content:center;
+    gap:16px;
+    flex-wrap:wrap;
+}
+
+.secondary-btn{
+    background:#e5e7eb;
+    color:#111827;
+}
+</style>
+
+{% endblock %}

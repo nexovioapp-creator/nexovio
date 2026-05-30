@@ -1,0 +1,147 @@
+{% load static %}
+
+<header class="nav">
+
+    <div class="nav-inner">
+
+        <!-- LOGO -->
+        <a href="/" class="brand">
+            <img
+                src="{% static 'admin/logo.jpg' %}"
+                alt="Nexovio"
+            >
+            <span>Nexovio</span>
+        </a>
+
+
+        <!-- SEARCH -->
+        <form
+            method="get"
+            action="/"
+            class="nav-search"
+        >
+
+            <div class="search-box">
+
+                <input
+                    type="text"
+                    name="q"
+                    id="search-input"
+                    placeholder="Search mobiles, brands..."
+                    value="{{ search_query|default:'' }}"
+                    autocomplete="off"
+                >
+
+                <button type="submit">
+                    Search
+                </button>
+
+            </div>
+
+            <div
+                id="autocomplete-list"
+                class="autocomplete-box"
+            ></div>
+
+        </form>
+
+
+        <!-- RIGHT SIDE -->
+        <div class="nav-actions">
+
+            {% if user.is_authenticated %}
+
+                <!-- WISHLIST -->
+                <a
+                    href="{% url 'wishlist' %}"
+                    class="wishlist-counter"
+                >
+
+                    <span class="wishlist-heart">
+                        ❤️
+                    </span>
+
+                    <span
+                        id="wishlist-count"
+                        class="wishlist-badge"
+                    >
+                        {{ wishlist_count }}
+                    </span>
+
+                </a>
+
+
+                <!-- USER MENU -->
+                <div class="user-menu">
+
+                    <span class="user-name">
+
+                        Hi,
+
+                        {% if user.first_name %}
+                            {{ user.first_name|title }}
+                        {% else %}
+                            {{ user.username|title }}
+                        {% endif %}
+
+                    </span>
+
+
+                    <!-- DROPDOWN -->
+                    <div class="dropdown">
+
+                        <a href="{% url 'account_dashboard' %}">
+                            My Profile
+                        </a>
+
+                        <!-- <a href="{% url 'account_dashboard' %}">
+                            Account Settings
+                        </a> -->
+
+                        <a href="{% url 'alerts_dashboard' %}">
+                            My Price Alerts
+                        </a>
+
+                        <a href="{% url 'password_reset' %}">
+                            Reset Password
+                        </a>
+
+                        <form
+                            method="post"
+                            action="{% url 'logout' %}"
+                        >
+                            {% csrf_token %}
+                            <button type="submit">
+                                Logout
+                            </button>
+                        </form>
+
+                    </div>
+
+                </div>
+
+            {% else %}
+
+                <!-- LOGIN -->
+                <a
+                    href="{% url 'login' %}"
+                    class="link"
+                >
+                    Login
+                </a>
+
+                <!-- SIGNUP FIXED -->
+                <a
+                    href="{% url 'signup' %}"
+                    class="btn-primary"
+                >
+                    Sign Up
+                </a>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</header>

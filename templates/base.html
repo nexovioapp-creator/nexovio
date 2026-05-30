@@ -1,0 +1,598 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <title>
+        Nexovio - Mobile Price Comparison
+    </title>
+
+    <!-- <link rel="stylesheet" href="{% static 'css/style.css' %}"> -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2">
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    {% include "partials/navbar.html" %}
+
+    <!-- PAGE CONTENT -->
+    <main class="page-container">
+
+        {% block content %}
+        {% endblock %}
+
+    </main>
+
+    <!-- FOOTER -->
+    {% include "partials/footer.html" %}
+
+
+
+    <!-- =========================
+        USER MENU
+    ========================== -->
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const userMenu = document.querySelector(".user-menu");
+        const userName = document.querySelector(".user-name");
+
+        if (!userMenu || !userName) return;
+
+        userName.addEventListener("click", function (e) {
+            e.stopPropagation();
+            userMenu.classList.toggle("active");
+        });
+
+        document.addEventListener("click", function (e) {
+            if (!userMenu.contains(e.target)) {
+                userMenu.classList.remove("active");
+            }
+        });
+
+    });
+    </script>
+
+
+
+    <!-- =========================
+         AJAX FILTERS + PAGINATION
+    ========================== -->
+
+    <script>
+
+    const form =
+        document.getElementById('filter-form');
+
+    const container =
+        document.getElementById('mobile-container');
+
+
+    function loadMobiles(url) {
+
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+
+        .then(res => res.text())
+
+        .then(data => {
+
+            container.innerHTML = data;
+
+            attachPagination();
+
+        });
+
+    }
+
+
+    if (form) {
+
+        form.addEventListener('change', () => {
+
+            const params =
+                new URLSearchParams(
+                    new FormData(form)
+                );
+
+            loadMobiles(
+                '?' + params.toString()
+            );
+
+        });
+
+    }
+
+
+    function attachPagination() {
+
+        document
+            .querySelectorAll('.ajax-link')
+
+            .forEach(link => {
+
+                link.addEventListener('click', function(e) {
+
+                    e.preventDefault();
+
+                    const params =
+                        new URLSearchParams(
+                            new FormData(form)
+                        );
+
+                    loadMobiles(
+                        this.getAttribute('href')
+                        + '&'
+                        + params.toString()
+                    );
+
+                });
+
+            });
+
+    }
+
+    attachPagination();
+
+    </script>
+
+
+
+    <!-- =========================
+         AUTOCOMPLETE
+    ========================== -->
+
+    <script>
+
+    const searchInput =
+        document.getElementById("search-input");
+
+    const autocompleteList =
+        document.getElementById("autocomplete-list");
+
+    let currentFocus = -1;
+
+
+    // =======================
+    // INPUT
+    // =======================
+
+    if (searchInput) {
+
+        searchInput.addEventListener(
+            "input",
+            async function () {
+
+                const query = this.value.trim();
+
+                // CLEAR OLD ITEMS
+                autocompleteList.innerHTML = "";
+
+                currentFocus = -1;
+
+
+                // RESET DROPDOWN
+                autocompleteList.style.opacity = "0";
+                autocompleteList.style.visibility = "hidden";
+                autocompleteList.style.transform =
+                    "translateX(-50%) translateY(8px)";
+
+
+                // EMPTY INPUT
+                if (!query) {
+                    return;
+                }
+
+
+                // FETCH RESULTS
+                const response =
+                    await fetch(`/autocomplete/?q=${query}`);
+
+                const results =
+                    await response.json();
+
+
+                // NO RESULTS
+                if (results.length === 0) {
+                    return;
+                }
+
+
+                // SHOW DROPDOWN
+                autocompleteList.style.opacity = "1";
+
+                autocompleteList.style.visibility = "visible";
+
+                autocompleteList.style.transform =
+                    "translateX(-50%) translateY(0)";
+
+
+                // CREATE ITEMS
+                results.forEach((item) => {
+
+                    const div =
+                        document.createElement("div");
+
+                    div.classList.add(
+                        "autocomplete-item"
+                    );
+
+                    div.innerHTML = item.name;
+
+
+                    // CLICK
+                    div.addEventListener(
+                        "click",
+                        function () {
+
+                            window.location.href =
+                                item.url;
+
+                        }
+                    );
+
+                    autocompleteList.appendChild(div);
+
+                });
+
+            }
+        );
+
+    }
+
+
+
+    // =======================
+    // KEYBOARD
+    // =======================
+
+    if (searchInput) {
+
+        searchInput.addEventListener(
+            "keydown",
+            function(e) {
+
+                const items =
+                    autocompleteList.getElementsByClassName(
+                        "autocomplete-item"
+                    );
+
+                if (!items.length)
+                    return;
+
+
+                // DOWN
+                if (e.key === "ArrowDown") {
+
+                    currentFocus++;
+
+                    addActive(items);
+
+                }
+
+
+                // UP
+                else if (e.key === "ArrowUp") {
+
+                    currentFocus--;
+
+                    addActive(items);
+
+                }
+
+
+                // ENTER
+                else if (e.key === "Enter") {
+
+                    if (currentFocus > -1) {
+
+                        e.preventDefault();
+
+                        items[currentFocus].click();
+
+                    }
+
+                }
+
+            }
+        );
+
+    }
+
+
+
+    // =======================
+    // ACTIVE
+    // =======================
+
+    function addActive(items) {
+
+        removeActive(items);
+
+        if (currentFocus >= items.length)
+            currentFocus = 0;
+
+        if (currentFocus < 0)
+            currentFocus = items.length - 1;
+
+        items[currentFocus]
+            .classList.add(
+                "autocomplete-active"
+            );
+
+    }
+
+
+    function removeActive(items) {
+
+        for (let item of items) {
+
+            item.classList.remove(
+                "autocomplete-active"
+            );
+
+        }
+
+    }
+
+
+
+    // =======================
+    // CLOSE
+    // =======================
+
+    document.addEventListener(
+        "click",
+        function(e) {
+
+            if (
+                !e.target.closest(".nav-search")
+            ) {
+
+                autocompleteList.style.opacity = "0";
+                autocompleteList.style.visibility = "hidden";
+                autocompleteList.style.transform = "translateX(-50%) translateY(8px)";
+
+            }
+
+        }
+    );
+
+    </script>
+
+    <script>
+    document.addEventListener("click", async function(e) {
+
+        const button = e.target.closest(".wishlist-btn");
+
+        if (!button) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        const slug = button.dataset.slug;
+
+        try {
+
+            const response = await fetch(`/wishlist/${slug}/`, {
+                method: "GET",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            });
+
+            const data = await response.json();
+
+            // update heart
+            if (data.added) {
+                button.innerHTML = "❤️";
+            } else {
+                button.innerHTML = "🤍";
+            }
+
+            // update navbar count
+            const counter = document.getElementById("wishlist-count");
+
+            if (counter) {
+                counter.innerText = data.wishlist_count;
+            }
+
+            // wishlist page remove card
+            if (
+                !data.added &&
+                window.location.pathname === "/wishlist/"
+            ) {
+                const card = button.closest(".card");
+
+                if (card) {
+                    card.remove();
+                }
+
+                const cards =
+                    document.querySelectorAll(".card");
+
+                if (cards.length === 0) {
+
+                    const grid =
+                        document.querySelector(".grid");
+
+                    if (grid) {
+                        grid.innerHTML = `
+                            <div class="empty-wishlist">
+                                <h3>No wishlist items yet ❤️</h3>
+                            </div>
+                        `;
+                    }
+                }
+            }
+
+        } catch (err) {
+            console.error(err);
+        }
+    });
+    </script>
+
+    <script>
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function(){
+
+            const compareBar =
+                document.getElementById("compare-bar");
+
+            const compareCount =
+                document.getElementById("compare-count");
+
+            const compareBtn =
+                document.getElementById("compare-now-btn");
+
+            if(!compareBar || !compareBtn) return;
+
+            function getCompareItems(){
+
+                return JSON.parse(
+                    localStorage.getItem("compareMobiles")
+                ) || [];
+            }
+
+            function saveCompareItems(items){
+
+                localStorage.setItem(
+                    "compareMobiles",
+                    JSON.stringify(items)
+                );
+            }
+
+            function updateCompareUI(){
+
+                const items =
+                    getCompareItems();
+
+                // HIDE ON COMPARE PAGE
+                if(
+                    window.location.pathname === "/compare/"
+                ){
+                    compareBar.style.display = "none";
+                    return;
+                }
+
+                if(items.length > 0){
+
+                    compareBar.style.display = "flex";
+
+                    compareCount.innerText =
+                        `${items.length} mobiles selected`;
+
+                } else {
+
+                    compareBar.style.display = "none";
+                }
+
+                document.querySelectorAll(
+                    ".compare-checkbox"
+                ).forEach(box => {
+
+                    box.checked =
+                        items.includes(
+                            box.dataset.slug
+                        );
+                });
+            }
+
+            document.addEventListener(
+                "change",
+                function(e){
+
+                    if(
+                        !e.target.classList.contains(
+                            "compare-checkbox"
+                        )
+                    ) return;
+
+                    let items =
+                        getCompareItems();
+
+                    const slug =
+                        e.target.dataset.slug;
+
+                    if(e.target.checked){
+
+                        if(items.length >= 3){
+
+                            alert(
+                                "Maximum 3 mobiles allowed"
+                            );
+
+                            e.target.checked = false;
+                            return;
+                        }
+
+                        if(!items.includes(slug)){
+
+                            items.push(slug);
+                        }
+
+                    } else {
+
+                        items =
+                            items.filter(
+                                s => s !== slug
+                            );
+                    }
+
+                    saveCompareItems(items);
+                    updateCompareUI();
+                }
+            );
+
+            compareBtn.addEventListener(
+                "click",
+                function(){
+
+                    const items =
+                        getCompareItems();
+
+                    if(items.length < 2){
+
+                        alert(
+                            "Select at least 2 mobiles"
+                        );
+
+                        return;
+                    }
+
+                    window.location.href =
+                        `/compare/?mobiles=${items.join(",")}`;
+                }
+            );
+
+            updateCompareUI();
+        }
+    );
+
+    </script>    
+
+    <div id="compare-bar">
+
+        <span id="compare-count">
+            0 mobiles selected
+        </span>
+
+        <button id="compare-now-btn">
+            Compare Now
+        </button>
+
+    </div>
+
+
+</body>
+</html>
+

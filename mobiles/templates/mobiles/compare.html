@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="compare-page">
+
+    <div class="compare-header">
+
+        <div class="compare-header-top">
+            <h1>Compare Mobiles</h1>
+
+            {% if variants %}
+            <button id="clear-compare-btn">
+                Clear Compare
+            </button>
+            {% endif %}
+        </div>
+
+        <p>Side-by-side specification comparison</p>
+
+    </div>
+
+    {% if variants %}
+
+        <div class="compare-table-wrapper">
+
+            <table class="compare-table">
+
+                <thead>
+                    <tr>
+                        <th>Specification</th>
+
+                        {% for v in variants %}
+                        <th class="mobile-column">
+
+                            <button
+                                class="remove-compare-btn"
+                                data-slug="{{ v.slug }}"
+                            >
+                                ✕
+                            </button>
+
+                            {% with img=v.prices.first %}
+                                {% if img and img.img_url %}
+                                    <img
+                                        src="{{ img.img_url }}"
+                                        alt="{{ v.mobile.model_name }}"
+                                        class="compare-mobile-image"
+                                    >
+                                {% endif %}
+                            {% endwith %}
+
+                            <div class="compare-mobile-name">
+                                {{ v.mobile.brand }}
+                                {{ v.mobile.model_name }}
+                            </div>
+
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <td>Price</td>
+                        {% for v in variants %}
+                        <td>
+                            {% if v.best_price %}
+                                <span class="
+                                    {% if v.best_price.final_price == best_values.lowest_price %}
+                                        best-spec
+                                    {% endif %}
+                                ">
+                                    ₹{{ v.best_price.final_price }}
+                                </span>
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+
+                    <tr>
+                        <td>RAM</td>
+                        {% for v in variants %}
+                        <td>
+                            <span class="
+                                {% if v.ram_gb|slice:":2"|add:"0" == best_values.highest_ram %}
+                                    best-spec
+                                {% endif %}
+                            ">
+                                {{ v.ram_gb }}
+                            </span>
+                        </td>
+                        {% endfor %}
+                    </tr>
+
+                    <tr>
+                        <td>Storage</td>
+                        {% for v in variants %}
+                        <td>
+                            <span class="
+                                {% if v.storage_gb|slice:":3"|add:"0" == best_values.highest_storage %}
+                                    best-spec
+                                {% endif %}
+                            ">
+                                {{ v.storage_gb }}
+                            </span>
+                        </td>
+                        {% endfor %}
+                    </tr>
+
+                    <tr>
+                        <td>Processor</td>
+                        {% for v in variants %}
+                        <td>{{ v.mobile.processor|default:"N/A" }}</td>
+                        {% endfor %}
+                    </tr>
+
+                    <tr>
+                        <td>Battery</td>
+                        {% for v in variants %}
+                        <td>
+                            {% if v.mobile.battery_capacity %}
+                                <span class="
+                                    {% if v.mobile.battery_capacity == best_values.highest_battery %}
+                                        best-spec
+                                    {% endif %}
+                                ">
+                                    {{ v.mobile.battery_capacity }} mAh
+                                </span>
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+
+                    <tr>
+                        <td>Display</td>
+                        {% for v in variants %}
+                        <td>
+                            {% if v.mobile.screen_size %}
+                                {{ v.mobile.screen_size }}"
+                            {% else %}
+                                N/A
+                            {% endif %}
+                            {{ v.mobile.screen_type|default:"" }}
+                        </td>
+                        {% endfor %}
+                    </tr>
+
+                    <tr>
+                        <td>OS</td>
+                        {% for v in variants %}
+                        <td>{{ v.mobile.operating_system|default:"N/A" }}</td>
+                        {% endfor %}
+                    </tr>
+
+                    <tr>
+                        <td>Primary Camera</td>
+                        {% for v in variants %}
+                        <td>{{ v.primary_camera|default:"N/A" }}</td>
+                        {% endfor %}
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-compare">
+            <h3>No mobiles selected</h3>
+
+            <p>
+                Select at least 2 mobiles to compare
+            </p>
+
+            <a href="/" class="back-to-home-btn">
+                ← Continue Comparing
+            </a>
+        </div>
+
+    {% endif %}
+
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+
+    const clearBtn =
+        document.getElementById("clear-compare-btn");
+
+    if(clearBtn){
+
+        clearBtn.addEventListener("click", function(){
+
+            localStorage.removeItem(
+                "compareMobiles"
+            );
+
+            window.location.href =
+                "/compare/";
+        });
+    }
+
+    document.querySelectorAll(".remove-compare-btn")
+        .forEach(button => {
+
+            button.addEventListener("click", function(){
+
+                const slug = this.dataset.slug;
+
+                let items = JSON.parse(
+                    localStorage.getItem("compareMobiles")
+                ) || [];
+
+                items = items.filter(
+                    item => item !== slug
+                );
+
+                localStorage.setItem(
+                    "compareMobiles",
+                    JSON.stringify(items)
+                );
+
+                if(items.length >= 2){
+
+                    window.location.href =
+                        `/compare/?mobiles=${items.join(",")}`;
+
+                } else {
+
+                    localStorage.removeItem(
+                        "compareMobiles"
+                    );
+
+                    window.location.href =
+                        "/compare/";
+                }
+            });
+        });
+});
+</script>
+
+{% endblock %}

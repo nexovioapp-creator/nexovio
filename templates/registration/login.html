@@ -1,0 +1,47 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login | Nexovio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+<body>
+
+<div class="login-wrapper">
+  <div class="login-card">
+
+    <div class="login-header">
+      <img src="{% static 'admin/logo.jpg' %}" alt="Nexovio">
+      <h2>Welcome back</h2>
+      <p>Login to continue to Nexovio</p>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label>Username</label>
+        {{ form.username }}
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        {{ form.password }}
+      </div>
+
+      <button type="submit" class="login-btn">Login</button>
+    </form>
+
+    <div class="login-footer">
+      <span>Don’t have an account?</span>
+      <a href="{% url 'signup' %}">Create account</a>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

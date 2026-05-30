@@ -1,0 +1,20 @@
+# Environment secrets
+nexovio.env
+.env
+
+# Database
+db.sqlite3
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Django static build
+staticfiles/
+
+# VS Code
+.vscode/
+
+# OS junk
+.DS_Store
+Thumbs.db

@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+
+    {% if not user.is_authenticated %}
+    <!-- HERO SECTION -->
+    <section class="homepage-hero">
+
+        <div class="hero-content">
+            <h1>Track Mobile Prices. Buy at the Right Time.</h1>
+
+            <p>
+                Compare prices across Flipkart, Amazon, Vijay Sales and more.
+                Track price history, spot the best deals, and buy smarter.
+            </p>
+
+            <div class="hero-trust-badges">
+                <span>📉 Real-time Price Tracking</span>
+                <span>📊 Historical Price Trends</span>
+                <span>🧠 Smart Buy Recommendations</span>
+                <span>🔔 Price Drop Alerts</span>
+            </div>
+        </div>
+
+    </section>
+    {% endif %}
+
+
+    <!-- FILTER SECTION -->
+    <section class="section">
+
+        <div class="top-controls">
+
+            <div class="filters">
+
+                <form id="filter-form">
+
+                    <select name="brand">
+                        <option value="">All Brands</option>
+
+                        {% for b in brands %}
+                            <option value="{{ b }}">
+                                {{ b }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    <select name="ram">
+                        <option value="">All RAM</option>
+                        <option value="4096">4 GB</option>
+                        <option value="6144">6 GB</option>
+                        <option value="8192">8 GB</option>
+                        <option value="12288">12 GB</option>
+                    </select>
+
+                    <select name="price_range">
+                        <option value="">Any Price</option>
+                        <option value="0-10000">Under ₹10,000</option>
+                        <option value="10000-20000">₹10k - ₹20k</option>
+                        <option value="20000-30000">₹20k - ₹30k</option>
+                        <option value="30000-50000">₹30k - ₹50k</option>
+                        <option value="50000-100000">Above ₹50k</option>
+                    </select>
+
+                    <select name="sort">
+                        <option value="">Sort</option>
+                        <option value="price_low">Price: Low → High</option>
+                        <option value="price_high">Price: High → Low</option>
+                    </select>
+
+                </form>
+
+            </div>
+
+        </div>
+
+
+        <!-- HIGHLIGHT STRIP -->
+        <div class="homepage-highlights">
+
+            <a href="?sort=best_deals" class="highlight-card">
+                🔥 Today's Best Deals
+            </a>
+
+            <a href="?sort=price_drops" class="highlight-card">
+                📉 Biggest Price Drops
+            </a>
+
+            <a href="?sort=most_compared" class="highlight-card">
+                ⭐ Most Compared Phones
+            </a>
+
+            <a href="?sort=recent" class="highlight-card">
+                🔔 Recently Tracked
+            </a>
+
+        </div>
+
+
+        <!-- MOBILE LIST -->
+        <div id="mobile-container">
+            {% include "mobiles/partials/mobile_list_partial.html" %}
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}
