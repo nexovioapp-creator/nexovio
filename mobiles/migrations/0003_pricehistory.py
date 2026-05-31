@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mobiles', '0002_wishlist_table'),
+        ('mobiles', '0001_initial'),
     ]
 
     operations = [
